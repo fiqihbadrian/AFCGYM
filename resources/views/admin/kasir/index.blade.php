@@ -15,7 +15,7 @@
 <div class="row g-4">
     <div class="col-lg-5">
         <div class="panel">
-            <h3 class="panel__title" style="margin-bottom: 6px;">1. Cari orangnya</h3>
+            <h3 class="panel__title" style="margin-bottom: 6px;">Cari member</h3>
             <p class="panel__desc" style="margin-bottom: 14px;">Ketik sebagian nama, kode kartu, atau no HP.</p>
             <form action="{{ route('backend.kasir.index') }}" method="get">
                 <div class="field">
@@ -51,7 +51,7 @@
         </div>
 
         <div class="panel">
-            <h3 class="panel__title" style="margin-bottom: 6px;">Tamu belum terdaftar?</h3>
+            <h3 class="panel__title" style="margin-bottom: 6px;">Tamu belum terdaftar</h3>
             <p class="panel__desc" style="margin-bottom: 14px;">Cukup nama. No HP boleh dikosongkan.</p>
             <form action="{{ route('backend.kasir.tamu') }}" method="post">
                 @csrf
@@ -64,7 +64,7 @@
                     @enderror
                 </div>
                 <div class="field">
-                    <label for="no_hp_tamu">No HP <span style="color: var(--muted); font-weight: 400;">(opsional)</span></label>
+                    <label for="no_hp_tamu">No HP <span style="color: var(--muted); font-weight: 400;">opsional</span></label>
                     <input type="text" id="no_hp_tamu" name="no_hp" class="form-control" autocomplete="off">
                 </div>
                 <button type="submit" class="btn btn-ghost w-100 justify-content-center">
@@ -201,7 +201,7 @@
         <div class="panel panel--flush">
             <div class="panel__head panel__head--padded">
                 <div>
-                    <h3 class="panel__title">Masuk Hari Ini</h3>
+                    <h3 class="panel__title">Masuk hari ini</h3>
                     <p class="panel__desc">{{ $kunjunganHariIni->count() }} orang tercatat.</p>
                 </div>
             </div>

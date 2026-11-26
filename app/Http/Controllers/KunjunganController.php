@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\Auth;
 
 class KunjunganController extends Controller
 {
+    /**
+     * Halaman check-in: scanner QR + hasil cek status (belum dicatat).
+     */
     public function index()
     {
         $kunjungan = Kunjungan::with(['member', 'pencatat'])
@@ -16,10 +19,56 @@ class KunjunganController extends Controller
             ->limit(50)
             ->get();
 
+        $hasilCek = null;
+
+        // Hasil "Cek status" disimpan sebentar di session, lalu ditampilkan
+        // sebagai kartu konfirmasi. Kunjungan baru tercatat setelah petugas
+        // menekan "Catat kunjungan".
+        if ($id = session('cek_member_id')) {
+            $member = Member::with('langgananTerakhir.paket')->find($id);
+
+            if ($member) {
+                $hasilCek = [
+                    'member'      => $member,
+                    'aktif'       => $member->aktif,
+                    'sisa_hari'   => $member->sisa_hari,
+                    'paket'       => $member->langgananTerakhir->paket->nama ?? null,
+                    'sudah_masuk' => $member->kunjungan()
+                        ->whereDate('waktu_kunjungan', today()->toDateString())
+                        ->exists(),
+                ];
+            }
+        }
+
         return view('admin.kunjungan.index', [
-            'judul'     => 'Check-in Kunjungan',
-            'kunjungan' => $kunjungan,
+            'judul'        => 'Check-in Kunjungan',
+            'kunjungan'    => $kunjungan,
+            'hasilCek'     => $hasilCek,
+            'masukHariIni' => Kunjungan::whereDate('waktu_kunjungan', today()->toDateString())->count(),
         ]);
+    }
+
+    /**
+     * Cek status kartu tanpa mencatat kunjungan.
+     */
+    public function cek(Request $request)
+    {
+        $request->validate([
+            'kode_member' => 'required|max:20',
+        ], [
+            'kode_member.required' => 'Kode kartu wajib diisi.',
+        ]);
+
+        $member = Member::where('kode_member', strtoupper(trim($request->kode_member)))->first();
+
+        if (! $member) {
+            return back()
+                ->withInput()
+                ->with('error', 'Kartu ' . strtoupper(trim($request->kode_member)) . ' tidak dikenali.');
+        }
+
+        return redirect()->route('backend.kunjungan.index')
+            ->with('cek_member_id', $member->id);
     }
 
     /**

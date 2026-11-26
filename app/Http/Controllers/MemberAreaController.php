@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Paket;
+use App\Models\Pesanan;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class MemberAreaController extends Controller
@@ -35,6 +38,73 @@ class MemberAreaController extends Controller
             'jumlahKunjungan'  => $jumlahKunjungan,
             'kunjungan'        => $kunjungan,
         ]);
+    }
+
+    /**
+     * Paket yang bisa dipesan member sendiri.
+     *
+     * Pesanan tidak langsung membuat langganan: member tetap bayar di
+     * kasir, lalu petugas mengonfirmasi dari menu Pesanan Member.
+     */
+    public function paket()
+    {
+        $member = Auth::user()->member;
+
+        if (! $member) {
+            return redirect()->route('member.beranda');
+        }
+
+        return view('member.paket', [
+            'judul'      => 'Paket & Latihan',
+            'member'     => $member,
+            'paket'      => Paket::where('status', 1)->orderBy('durasi_hari')->get(),
+            'pesananSaya'=> $member->pesanan()
+                ->with('paket')
+                ->orderByDesc('created_at')
+                ->limit(10)
+                ->get(),
+        ]);
+    }
+
+    /**
+     * Simpan pesanan paket dari member (belum dibayar).
+     */
+    public function pesan(Request $request)
+    {
+        $member = Auth::user()->member;
+
+        if (! $member) {
+            return redirect()->route('member.beranda');
+        }
+
+        $validatedData = $request->validate([
+            'paket_id' => 'required|exists:paket,id',
+            'metode'   => 'required|max:30',
+        ], [
+            'paket_id.required' => 'Paket wajib dipilih.',
+            'metode.required'   => 'Metode pembayaran wajib dipilih.',
+        ]);
+
+        $paket = Paket::where('status', 1)->findOrFail($validatedData['paket_id']);
+
+        $sudahAda = $member->pesanan()
+            ->where('paket_id', $paket->id)
+            ->menunggu()
+            ->exists();
+
+        if ($sudahAda) {
+            return back()->with('error', 'Pesanan paket ini sudah menunggu konfirmasi kasir.');
+        }
+
+        $member->pesanan()->create([
+            'paket_id' => $paket->id,
+            'jumlah'   => $paket->harga,
+            'metode'   => $validatedData['metode'],
+            'status'   => Pesanan::STATUS_MENUNGGU,
+        ]);
+
+        return redirect()->route('member.paket')
+            ->with('success', 'Pesanan ' . $paket->nama . ' dikirim. Bayar di kasir untuk mengaktifkan.');
     }
 
     /**

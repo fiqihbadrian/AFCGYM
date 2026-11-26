@@ -467,3 +467,81 @@ Perlu tambahan tabel `cabang` dan kolom `cabang_id` di `member`, `paket`, dan `k
 ## 17. Ringkasan Satu Paragraf
 
 AFCGym mencatat keanggotaan gym, masa aktif langganan, dan setiap kedatangan. Status aktif dihitung otomatis dari tanggal berakhir, bukan disimpan, sehingga tidak perlu proses terjadwal. Admin dapat mencatat penjualan paket maupun pembayaran per kedatangan dari satu layar kasir, lengkap dengan hitungan kembalian. Member yang memakai HP bisa melihat kartu digital dan riwayatnya sendiri, sementara member yang tidak memakai HP tetap terlayani lewat kartu fisik yang dicetak petugas. Semua uang yang masuk tercatat di satu tabel pembayaran dengan penanda sumber, sehingga laporan bisa memisahkan pendapatan paket dari pendapatan harian.
+
+---
+
+## Catatan Instalasi Lokal (Windows)
+
+Proyek ini dijalankan dengan **Laragon 6.0.0** (versi terakhir yang gratis penuh, tanpa popup lisensi).
+
+| Komponen | Versi |
+|---|---|
+| PHP | 8.1.10 |
+| Composer | 2.4.1 |
+| MySQL | 8.0.30 |
+| Laragon | 6.0.0 |
+
+**Catatan `composer.lock`:** lock bawaan repo di-generate dengan PHP 8.2+, sehingga `composer install` gagal di PHP 8.1 (paket `symfony/*`, `nette/utils`, `laravel/pint` menuntut PHP ≥ 8.2). Karena itu dilakukan `composer update` agar lock sesuai PHP 8.1. Jika nanti memakai PHP 8.2+, boleh mengembalikan lock asli dari riwayat git (`git checkout composer.lock`).
+
+**Menjalankan:**
+
+```bat
+start-afcgym.bat
+```
+
+Atau manual:
+
+```bash
+php artisan serve --port=8123
+```
+
+Login: `http://127.0.0.1:8123/backend/login`
+(admin@afcgym.test / admin123)
+
+---
+
+## Fitur yang Disamakan dengan Versi Live
+
+Versi yang berjalan di `afcgym.infinityfree.io` lebih baru daripada commit terakhir di repo ini.
+Berikut yang sudah ditambahkan kembali ke kode lokal:
+
+**1. Pesanan Member (baru)**
+
+- Member memesan paket sendiri dari halaman **Paket** (`/member/paket`).
+  Pesanan tidak langsung mengaktifkan paket — statusnya `menunggu` sampai dibayar di kasir.
+- Petugas mengonfirmasi di **Pesanan Member** (`/backend/pesanan`), lengkap dengan
+  pilihan metode (Cash/Transfer/QRIS) dan tanggal bayar.
+  Saat dikonfirmasi barulah dibuat baris `langganan` + `pembayaran`, sehingga
+  laporan pendapatan tidak menghitung uang yang belum masuk.
+- Tabel baru: `pesanan` (migration `2024_01_02_000001_create_pesanan_table.php`).
+
+**2. Scan QR di halaman Check-in**
+
+- Tiga tab: **Kamera** (kamera + `jsQR`, aset `public/vendor/jsQR.min.js`),
+  **Scanner** (alat barcode mode keyboard-wedge, submit otomatis saat Enter),
+  dan **Ketik** (input manual).
+- Alur dua langkah seperti versi live: `Cek status` (`POST backend/kunjungan/cek`)
+  menampilkan kartu konfirmasi, lalu baru `Catat kunjungan`.
+  Jadi QR yang terbaca tidak langsung tercatat sebagai kehadiran.
+- Menampilkan jumlah "orang sudah masuk hari ini".
+
+**3. Kolom tabel kunjungan**
+
+`Waktu | Member | Jenis | Petugas` — kolom `Jenis` menampilkan badge `paket` / `latihan`,
+menggantikan kolom `Dicatat oleh`.
+
+**4. Label & navigasi disamakan**
+
+- Sidebar disamakan detail dengan versi live: **Beranda** berdiri sendiri tanpa label,
+  lalu grup **Harian** (Check-in, Kasir, Pesanan Member), **Data** (Member, Paket,
+  Langganan), dan **Laporan** (Pendapatan — menu yang dulu bernama "Laporan").
+  Subtitle "Management System" di bawah logo dihapus, item menu **Keluar** diganti
+  tombol ikon di footer sidebar (seperti live), dan **Pesanan Member** menampilkan
+  badge jumlah pesanan yang belum dikonfirmasi.
+- Beranda: "Masuk hari ini", "Habis dalam 7 hari", "Pendapatan bulan ini",
+  "Segera habis", "Masuk terakhir", "Semua member".
+- Kasir: "Cari member", "Tamu belum terdaftar", "Masuk hari ini".
+- Menu member bertambah **Paket** (`/member/paket`).
+
+**Catatan:** kode sumber versi live tidak publik (repo hanya punya satu commit),
+jadi fitur di atas direkonstruksi dari tampilan HTML live, bukan disalin dari sumber aslinya.

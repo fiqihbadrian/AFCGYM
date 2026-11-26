@@ -43,6 +43,11 @@ class Member extends Model
         return $this->hasMany(Kunjungan::class);
     }
 
+    public function pesanan()
+    {
+        return $this->hasMany(Pesanan::class);
+    }
+
     public function akun()
     {
         return $this->hasOne(User::class);

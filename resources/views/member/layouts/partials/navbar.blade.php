@@ -1,6 +1,7 @@
 @php
     $menu = [
         ['route' => 'member.beranda', 'label' => 'Beranda', 'icon' => 'house'],
+        ['route' => 'member.paket', 'label' => 'Paket', 'icon' => 'box-seam'],
         ['route' => 'member.kartu', 'label' => 'Kartu Saya', 'icon' => 'credit-card-2-front'],
         ['route' => 'member.riwayat', 'label' => 'Riwayat', 'icon' => 'clock-history'],
     ];

@@ -10,11 +10,11 @@
     <h1>Halo, {{ $member->nama }}</h1>
     <p>
         @if (! $langgananTerakhir)
-            Kamu belum punya langganan. Daftar paket dulu di resepsionis.
+            Kamu belum punya langganan. Pilih paket di menu Paket, lalu bayar di kasir.
         @elseif ($member->aktif)
             Keanggotaan kamu aktif. Sisa {{ $member->sisa_hari }} hari lagi.
         @else
-            Keanggotaan kamu sudah berakhir pada {{ tanggal_id($berakhir) }}. Perpanjang di resepsionis.
+            Keanggotaan kamu sudah berakhir pada {{ tanggal_id($berakhir) }}. Perpanjang dari menu Paket, bayar di kasir.
         @endif
     </p>
 

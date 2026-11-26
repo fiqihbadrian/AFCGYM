@@ -9,6 +9,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MemberAreaController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\PaketController;
+use App\Http\Controllers\PesananController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -46,12 +47,18 @@ Route::middleware(['auth', 'role:1'])->group(function () {
 
     // Check-in kunjungan (member berpaket)
     Route::get('backend/kunjungan', [KunjunganController::class, 'index'])->name('backend.kunjungan.index');
+    Route::post('backend/kunjungan/cek', [KunjunganController::class, 'cek'])->name('backend.kunjungan.cek');
     Route::post('backend/kunjungan', [KunjunganController::class, 'store'])->name('backend.kunjungan.store');
 
     // Kasir latihan (bayar per kedatangan)
     Route::get('backend/kasir', [KasirController::class, 'index'])->name('backend.kasir.index');
     Route::post('backend/kasir', [KasirController::class, 'store'])->name('backend.kasir.store');
     Route::post('backend/kasir/tamu', [KasirController::class, 'daftarTamu'])->name('backend.kasir.tamu');
+
+    // Pesanan paket yang dibuat member sendiri
+    Route::get('backend/pesanan', [PesananController::class, 'index'])->name('backend.pesanan.index');
+    Route::post('backend/pesanan/{pesanan}/proses', [PesananController::class, 'proses'])->name('backend.pesanan.proses');
+    Route::delete('backend/pesanan/{pesanan}', [PesananController::class, 'destroy'])->name('backend.pesanan.destroy');
 
     // Cetak kartu member
     Route::get('backend/member/{member}/kartu', [MemberController::class, 'kartu'])->name('backend.member.kartu');
@@ -67,6 +74,8 @@ Route::middleware(['auth', 'role:1'])->group(function () {
 */
 Route::middleware(['auth', 'role:0'])->group(function () {
     Route::get('member/beranda', [MemberAreaController::class, 'index'])->name('member.beranda');
+    Route::get('member/paket', [MemberAreaController::class, 'paket'])->name('member.paket');
+    Route::post('member/paket', [MemberAreaController::class, 'pesan'])->name('member.paket.pesan');
     Route::get('member/kartu', [MemberAreaController::class, 'kartu'])->name('member.kartu');
     Route::get('member/riwayat', [MemberAreaController::class, 'riwayat'])->name('member.riwayat');
 });

@@ -22,13 +22,13 @@
         <div>
             <div class="stat__label">Member Aktif</div>
             <div class="stat__value">{{ $memberAktif }}</div>
-            <div class="stat__hint">dari {{ $memberTotal }} member terdaftar</div>
+            <div class="stat__hint">dari {{ $memberTotal }} terdaftar</div>
         </div>
     </div>
     <div class="stat">
         <div class="stat__icon stat__icon--accent"><i class="bi bi-door-open"></i></div>
         <div>
-            <div class="stat__label">Kunjungan Hari Ini</div>
+            <div class="stat__label">Masuk hari ini</div>
             <div class="stat__value">{{ $kunjunganHariIni }}</div>
             <div class="stat__hint">{{ $kunjunganLatihanHariIni }} bayar per latihan</div>
         </div>
@@ -36,17 +36,17 @@
     <div class="stat">
         <div class="stat__icon stat__icon--warn"><i class="bi bi-hourglass-split"></i></div>
         <div>
-            <div class="stat__label">Akan Expired</div>
+            <div class="stat__label">Habis dalam 7 hari</div>
             <div class="stat__value">{{ $akanExpired->count() }}</div>
-            <div class="stat__hint">7 hari ke depan</div>
+            <div class="stat__hint">perlu diingatkan</div>
         </div>
     </div>
     <div class="stat">
         <div class="stat__icon"><i class="bi bi-cash-stack"></i></div>
         <div>
-            <div class="stat__label">Pendapatan Bulan Ini</div>
+            <div class="stat__label">Pendapatan bulan ini</div>
             <div class="stat__value" style="font-size: 21px;">{{ rupiah($pendapatanBulanIni) }}</div>
-            <div class="stat__hint">{{ rupiah($pendapatanLatihanBulanIni ?? 0) }} dari latihan harian</div>
+            <div class="stat__hint">{{ rupiah($pendapatanLatihanBulanIni ?? 0) }} dari latihan</div>
         </div>
     </div>
 </div>
@@ -56,19 +56,18 @@
         <div class="panel panel--flush">
             <div class="panel__head panel__head--padded">
                 <div>
-                    <h3 class="panel__title">Member Akan Expired</h3>
-                    <p class="panel__desc">Masa aktif habis dalam 7 hari ke depan.</p>
+                    <h3 class="panel__title">Segera habis</h3>
+                    <p class="panel__desc">Masa aktif berakhir dalam 7 hari ke depan.</p>
                 </div>
                 <div class="panel__tools">
-                    <a href="{{ route('backend.member.index') }}" class="btn btn-ghost btn-sm">Semua Member</a>
+                    <a href="{{ route('backend.member.index') }}" class="btn btn-ghost btn-sm">Semua member</a>
                 </div>
             </div>
             <div class="table-wrap">
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>Kode</th>
-                            <th>Nama</th>
+                            <th>Member</th>
                             <th>Berakhir</th>
                             <th>Sisa</th>
                             <th></th>
@@ -77,8 +76,10 @@
                     <tbody>
                         @forelse ($akanExpired as $row)
                         <tr>
-                            <td><span class="pill pill--muted">{{ $row->kode_member }}</span></td>
-                            <td>{{ $row->nama }}</td>
+                            <td>
+                                <strong style="font-weight: 600;">{{ $row->nama }}</strong><br>
+                                <span style="font-size: 12px; color: var(--muted);">{{ $row->kode_member }}</span>
+                            </td>
                             <td>{{ tanggal_id($row->langgananTerakhir->tanggal_berakhir) }}</td>
                             <td><span class="pill pill--warn">{{ $row->sisa_hari }} hari</span></td>
                             <td class="num">
@@ -89,7 +90,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="5" class="empty">Tidak ada member yang mendekati expired.</td>
+                            <td colspan="4" class="empty">Tidak ada member yang mendekati expired.</td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -102,7 +103,7 @@
         <div class="panel panel--flush">
             <div class="panel__head panel__head--padded">
                 <div>
-                    <h3 class="panel__title">Kunjungan Terakhir</h3>
+                    <h3 class="panel__title">Masuk terakhir</h3>
                     <p class="panel__desc">{{ $kunjunganTerakhir->count() }} check-in terbaru.</p>
                 </div>
                 <div class="panel__tools">
